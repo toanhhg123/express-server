@@ -7,6 +7,7 @@ const {
     seederAdmin,
     loginShipper,
     getShipperNoConfirm,
+    loginAdmin,
 } = require('../controllers/user.controler');
 const { protect } = require('../middlewares/auth.middleware');
 
@@ -16,7 +17,9 @@ userRouter.post('/login-shipper', loginShipper);
 userRouter.post('/register-shipper', registerShipper);
 userRouter.post('/register', register);
 
+userRouter.post('/login-admin', loginAdmin);
 userRouter.post('/login', login);
+
 userRouter.post('/confirm-shipper', protect, confirmShipperAdmin);
 userRouter.post('/seeder', seederAdmin);
 
