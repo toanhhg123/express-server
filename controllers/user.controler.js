@@ -47,6 +47,33 @@ const login = asyncHandler(async (req, res) => {
     }
 });
 
+const loginAdmin = asyncHandler(async (req, res) => {
+    try {
+        const { userName, password } = req.body;
+        console.log(req.body);
+        if (!userName || !password) throw new Error('validate form');
+        const userDb = await User.findOne({
+            userName,
+            password,
+            who: 'admin',
+        });
+        if (!userDb) throw new Error('user login fail');
+        var token = jwt.sign(
+            {
+                _id: userDb._id,
+                userName: userDb.userName,
+                password: userDb.password,
+                who: userDb.who,
+            },
+            process.env.PRIVATEKEY
+        );
+
+        return res.json({ userDb, token });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+});
+
 const loginShipper = asyncHandler(async (req, res) => {
     try {
         const { userName, password } = req.body;
@@ -132,9 +159,12 @@ const getShipperNoConfirm = asyncHandler(async (req, res) => {
 
 const seederAdmin = asyncHandler(async (req, res) => {
     try {
-        const user = await User.findOne({ userName: 'admin' });
-        if (user) user.who = 'admin';
-        await user.save();
+        await User.create({
+            userName: 'admin',
+            password: 'admin',
+            who: 'admin',
+        });
+
         return res.json('success');
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -142,6 +172,7 @@ const seederAdmin = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+    loginAdmin,
     register,
     login,
     registerShipper,
